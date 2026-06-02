@@ -11,6 +11,7 @@ body{
     background:#f4f6f8;
     text-align:center;
     padding:20px;
+    margin:0;
 }
 
 .container{
@@ -18,11 +19,17 @@ body{
     margin:auto;
 }
 
+h1{
+    font-size:24px;
+}
+
 input{
     width:70%;
+    max-width:260px;
     padding:12px;
     border-radius:10px;
     border:1px solid #ccc;
+    font-size:16px;
 }
 
 button{
@@ -32,6 +39,7 @@ button{
     background:#4f46e5;
     color:white;
     margin-top:10px;
+    cursor:pointer;
 }
 
 .card{
@@ -51,6 +59,12 @@ button{
     border:none;
     border-radius:8px;
     background:#eef;
+    cursor:pointer;
+}
+
+.backBtn{
+    margin-top:10px;
+    background:#333;
 }
 </style>
 </head>
@@ -75,65 +89,84 @@ const SHEET_URL =
 
 let data = [];
 
+// ✔️ 스프레드시트 불러오기
 async function loadData(){
     const res = await fetch(SHEET_URL);
     const text = await res.text();
 
-    // JSON 파싱 (구글 특수 포맷 제거)
+    // 구글 특수 JSON 자르기
     const json = JSON.parse(text.substring(47).slice(0,-2));
-
     const rows = json.table.rows;
 
+    // ✔️ 컬럼 매핑 (타임스탬프부터 시작)
     data = rows.map(r => ({
-        id: r.c[0]?.v,
-        name: r.c[1]?.v,
-        date: r.c[2]?.v,
-        title: r.c[3]?.v,
-        content: r.c[4]?.v,
-        feeling: r.c[5]?.v
+        timestamp: r.c[0]?.v,
+        id: r.c[1]?.v,        // 학번
+        name: r.c[2]?.v,
+        date: r.c[3]?.v,
+        title: r.c[4]?.v,
+        content: r.c[5]?.v,
+        feeling: r.c[6]?.v
     }));
+
+    console.log("데이터 로드 완료:", data);
 }
 
 loadData();
 
+// ✔️ 조회
 function search(){
+
     const id = document.getElementById("studentId").value.trim();
     const result = document.getElementById("result");
 
-    const filtered = data.filter(d => d.id == id);
+    // ✔️ 문자열 비교 (중요)
+    const filtered = data.filter(d =>
+        String(d.id) === String(id)
+    );
 
     if(filtered.length === 0){
-        result.innerHTML = "❌ 없음";
+        result.innerHTML = `
+        <div class="card">❌ 해당 학번 데이터 없음</div>`;
         return;
     }
 
     result.innerHTML = filtered.map((d,i)=>`
         <div class="card">
             <button class="expBtn" onclick='show(${JSON.stringify(filtered).replace(/"/g,"&quot;")},${i})'>
-                🧪 ${d.title} (${d.date})
+                🧪 ${d.title} <br>
+                📅 ${d.date}
             </button>
         </div>
     `).join("");
 }
 
+// ✔️ 상세보기
 function show(list, i){
     const d = list[i];
 
     document.getElementById("result").innerHTML = `
-        <div class="card">
-            <h2>🧪 ${d.title}</h2>
-            <p>📅 ${d.date}</p>
+    <div class="card">
 
-            <h3>🔬 과정</h3>
-            <p>${d.content}</p>
+        <h2>🧪 ${d.title}</h2>
+        <p>📅 ${d.date}</p>
 
-            <h3>💭 느낀점</h3>
-            <p>${d.feeling}</p>
+        <h3>🔬 과정 및 결과</h3>
+        <p>${d.content}</p>
 
-            <button onclick="search()">⬅ 뒤로</button>
-        </div>
-    `;
+        <h3>💭 느낀점</h3>
+        <p>${d.feeling}</p>
+
+        <button class="backBtn" onclick="search()">⬅ 목록</button>
+
+    </div>`;
 }
+
+// ✔️ 엔터 검색
+document.getElementById("studentId")
+.addEventListener("keypress", function(e){
+    if(e.key === "Enter") search();
+});
 
 </script>
 
