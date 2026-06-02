@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>동아리 활동 조회</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <h1>🔍 활동 조회</h1>
+
+  <input id="studentId" placeholder="학번 입력">
+  <button onclick="search()">조회</button>
+
+  <div id="result"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
