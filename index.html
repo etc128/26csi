@@ -103,7 +103,7 @@ async function loadData(){
         timestamp: r.c[0]?.v,
         id: r.c[1]?.v,        // 학번
         name: r.c[2]?.v,
-        date: r.c[3]?.v,
+        date: r.c[3]?.f || r.c[3]?.v,
         title: r.c[4]?.v,
         content: r.c[5]?.v,
         feeling: r.c[6]?.v
